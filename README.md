@@ -1,9 +1,7 @@
 # CatLikerWebsite
-small website with random cat images. 
+Small website with random cat images. Is currently in development...
 + cat topchart
 + user ranking
 # Technologies:
  Django
  PostgeSQL
-
-Currently in development...
