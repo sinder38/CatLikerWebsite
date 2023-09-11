@@ -12,6 +12,36 @@ from accounts.models import CustomUser
 from .get_cats import get_images
 
 
+def random_elem_queryset(queryset):
+    pass
+
+
+def __add_new_cats():
+    try:
+        new_cats = get_images(query=settings.IMAGE_PROVIDER_QUERY,
+                              api_url=settings.IMAGE_PROVIDER_URL,
+                              access_key=settings.IMAGE_PROVIDER_KEY,
+                              count=settings.IMAGE_REQUEST_QUANTITY,
+                              save=True)
+        l_new_cats = len(new_cats)
+        if l_new_cats:
+            print(f"Atempting to add {l_new_cats}...")
+            counter = 0
+            for cat in new_cats:
+                try:
+                    Cat.objects.create(id=cat[0], link=cat[1])
+                    counter += 1
+                except Exception as e:
+                    print("cat creation error", e)
+            print(f"{counter} cats was added successfully")
+        else:
+            print("no cats added")  # todo log better
+    except JSONDecodeError:
+        print("API error")
+    except Exception as e:
+        print("Unexpected error with get_images", e)
+
+
 # show cat corresponding to id
 def certain_cat(request, cat_id):
     if request.method == 'GET':
@@ -27,37 +57,11 @@ def certain_cat(request, cat_id):
             user.liked_cats.add(cat)
         else:
             user.disliked_cats.add(cat)
-
-        context = {'cat': cat}
-        return render(request, 'certain_cat.html', context)
+        return redirect(reverse("random_cat"))  # continue the cycle
 
 
 def no_cats(request):
     return render(request, 'no_cats.html')
-
-
-def __add_new_cats():
-    try:
-        new_cats = get_images(query=settings.IMAGE_PROVIDER_QUERY,
-                              api_url=settings.IMAGE_PROVIDER_URL,
-                              access_key=settings.IMAGE_PROVIDER_KEY,
-                              count=settings.IMAGE_REQUEST_QUANTITY,
-                              save=True)
-        if len(new_cats):
-            for cat in new_cats:
-                try:
-                    Cat.objects.create(id=cat[0], link=cat[1])
-                except Exception as e:
-                    print("oops2", e)
-        else:
-            print("no cats added")  # todo log better
-    except JSONDecodeError:
-        print("API error")
-        # return HttpResponse(status=503)
-        # todo select exceptions and redirect to page explaining api problems
-    except Exception as e:
-        print("Unexpected error with get_images", e)
-        # return HttpResponse(status=503)
 
 
 # show random cat the user has not yet seen
@@ -66,13 +70,11 @@ def random_cat(request):
         all_cats = Cat.objects.all()
         try:
             user = CustomUser.objects.get(pk=request.user.pk)
-            user_liked_cats = user.liked_cats.all()
-            user_disliked_cats = user.disliked_cats.all()
-            user_rated_cats = user_disliked_cats.union(user_liked_cats)
-            cat_list = all_cats.difference(user_rated_cats)  # get unrated cats
+            cat_list = Cat.objects.exclude(cat_disliked=user).exclude(cat_liked=user)  # unrated cats
             if len(cat_list) <= 1:  # if there are no unrated cats left
                 __add_new_cats()
-            unseen_cat = cat_list.first()
+            # todo optimize this
+            unseen_cat = cat_list.order_by('?').first()  # get unseen random cat
         except CustomUser.DoesNotExist:
             # if user is not logged in then display random cat
             unseen_cat = all_cats.order_by('?').first()  # get random cat

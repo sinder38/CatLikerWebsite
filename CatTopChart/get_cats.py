@@ -2,28 +2,22 @@ import datetime
 import json
 import os
 import string
-import sys
-from datetime import date
-from django.conf import settings
 
 import requests
 import random
-
-from environ import environ
-from requests import JSONDecodeError
 
 SAVE_FOLDER = "api_responses"
 
 
 # looks bad coz this used to have class structure,
 # but it was removed due to inconvenience :(
-def __get_headers(access_key):
+def __get_headers():
     # This format is for unsplash.com
     return {
-            "Accept-Version": "v1"}
+        "Accept-Version": "v1"}
 
 
-def __get_params(query, count,access_key):
+def __get_params(query, count, access_key):
     # This format is for unsplash.com
     return {
         "client_id": access_key,
@@ -53,9 +47,9 @@ def get_images(query, api_url, access_key, count: int, save=False) -> tuple:
     :param count: quantity on images
     :return: tuple of tuples where each inner tuple is (img_id, img_link)
     """
-    params = __get_params(query, count,access_key)
+    params = __get_params(query, count, access_key)
 
-    response = requests.get(f"{api_url}", headers=__get_headers(access_key), params=params)
+    response = requests.get(f"{api_url}", headers=__get_headers(), params=params)
     response.raise_for_status()  # raise errors if data is absent
     ser_response = response.json()  # also raises JSONDecodeError
 
@@ -67,7 +61,6 @@ def get_images(query, api_url, access_key, count: int, save=False) -> tuple:
             json.dump(ser_response, out_file)
 
     return tuple(__get_img_data(ser_response))
-
 
 
 # replicates get_images without using API coz requests limit

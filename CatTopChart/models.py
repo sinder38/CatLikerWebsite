@@ -1,7 +1,7 @@
 import random
 
 from django.db import models
-
+from django.db.models.aggregates import Count
 
 # data about cats: id, link to image, rank, points and etc
 class Cat(models.Model):
