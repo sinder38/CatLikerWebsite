@@ -1,24 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% extends "base.html" %}
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>CatLiker</title>
 </head>
 <body>
-{% extends "base.html" %}
 {% block content %}
     {% if user.is_authenticated %}
-        Hi {{ user.username }}!
+        User:{{ user.username }}!
         <p><a href="{% url 'logout' %}">Log Out</a></p>
     {% else %}
         <p>You are not logged in</p>
         <a href="{% url 'login' %}">Log In</a> |
         <a href="{% url 'accounts:signup' %}">Sign Up</a>
     {% endif %}
-    <a href="{% url 'random_cat' %}">random cat</a>
-    <a href="{% url 'cat_list' %}">cat list</a>
-    <a href="{% url 'accounts:profile_list' %}">profile list</a>
 
+    {% for cat in cats %}
+        <div>
+            <p>Points: {{ cat.points }}</p>
+            <p> Rank: {{ cat.rank }}</p>
+            <img src="{{ cat.link }}" alt="" width="200" height="200"/>
+        </div>
+    {% endfor %}
 {% endblock %}
 </body>
 </html>

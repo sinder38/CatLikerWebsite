@@ -6,10 +6,10 @@ from CatTopChart.models import Cat
 
 
 class CustomUser(AbstractUser):
-    user = models.CharField(max_length=20)
     disliked_cats = models.ManyToManyField(Cat, related_name='cat_disliked', blank=True)
     liked_cats = models.ManyToManyField(Cat, related_name='cat_liked', blank=True)
-
+    rank = models.PositiveIntegerField(null=True, blank=True, help_text='current rank of the user compared to others')
+    points = models.IntegerField(default=0, help_text='depends')
     def __str__(self):
         return self.username
 

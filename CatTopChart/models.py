@@ -3,6 +3,7 @@ import random
 from django.db import models
 from django.db.models.aggregates import Count
 
+
 # data about cats: id, link to image, rank, points and etc
 class Cat(models.Model):
     id = models.CharField(max_length=200, primary_key=True, help_text='Cat image id. example: eOLpJytrbsQ')
@@ -11,7 +12,7 @@ class Cat(models.Model):
                             help_text='Image download link. example: http://unsplash.com/photos/eOLpJytrbsQ/download')
     # ranking
     # ranks will be updated every hour.
-    rank = models.PositiveIntegerField(null=True,blank=True,help_text='current rank of the cat compared to others')
+    rank = models.PositiveIntegerField(null=True, blank=True, help_text='current rank of the cat compared to others')
     points = models.IntegerField(default=0)
 
     # def save(self, *args, **kwargs):

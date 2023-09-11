@@ -86,3 +86,9 @@ def random_cat(request):
             # this is not supposed to happen. app normally should just request more cats
             # so the user is told that there are no cats available
             return redirect(reverse("no_cats"))
+
+
+def cat_list(request):
+    if request.method == 'GET':
+        all_cats = Cat.objects.all()
+        return render(request, 'cat_list.html', {'cats': all_cats})

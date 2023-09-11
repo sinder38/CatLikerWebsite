@@ -2,15 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>CatLiker</title>
+    {% extends "base.html" %}
 </head>
 <body>
-{% for profile in profiles %}
-    <div>
-        <a href="{% url 'accounts:profile' profile.id %}">{{profile}}</a>
-        <p>{{ profile.user.username }}</p>
-        <p>@{{ profile.user.username|lower }}</p>
-    </div>
-{% endfor %}
+{% block content %}
+    {% if user.is_authenticated %}
+        User:{{ user.username }}!
+        <p><a href="{% url 'logout' %}">Log Out</a></p>
+    {% else %}
+        <p>You are not logged in</p>
+        <a href="{% url 'login' %}">Log In</a> |
+        <a href="{% url 'accounts:signup' %}">Sign Up</a>
+    {% endif %}
+
+    {% for profile in profiles %}
+        <div>
+            <a href="{% url 'accounts:profile' profile.id %}">{{ profile.username }}</a>
+            <p>Rank: {{ profile.rank }}</p>
+            <p>Points: {{ profile.points }}</p>
+        </div>
+    {% endfor %}
+{% endblock content %}
 </body>
 </html>

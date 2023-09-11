@@ -5,41 +5,34 @@
     <title>Title</title>
 </head>
 <body>
+<div>
+    <a> Username: {{ profile.username }}</a>
+    <p> Rank: {{ profile.rank }}</p>
+    <p> Points: {{ profile.points }}</p>
+</div>
+
+<a> Liked cats:</a>
 <ul>
-    {% for following in profile.follows.all %}
+    {% for cat in profile.liked_cats.all %}
         <li>
-            <a href="{% url 'accounts:profile_list' following.id %}">
-                {{ following }}
+            <a href="{% url 'certain_cat' cat.id %}">
+                {{ cat.id }}
             </a>
         </li>
     {% endfor %}
 </ul>
 
+<a> Disliked cats:</a>
 <ul>
-{% for follower in profile.followed_by.all %}
-    <li>
-        <a href="{% url 'accounts:profile' follower.id %}">
-            {{ follower }}
-        </a>
-    </li>
-{% endfor %}
+    {% for cat in profile.disliked_cats.all %}
+        <li>
+            <a href="{% url 'certain_cat' cat.id %}">
+                {{ cat.id }}
+            </a>
+        </li>
+    {% endfor %}
 </ul>
-<form method="post">
-    {% csrf_token %}
-    <div class="buttons has-addons">
-    {% if profile in user.profile.follows.all %}
-        <button class="button is-success is-static">Follow</button>
-        <button class="button is-danger" name="follow" value="unfollow">
-            Unfollow
-        </button>
-    {% else %}
-        <button class="button is-success" name="follow" value="follow">
-            Follow
-        </button>
-        <button class="button is-danger is-static">Unfollow</button>
-    {% endif %}
-    </div>
-</form>
+
 
 </body>
 </html>
