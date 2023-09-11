@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% for profile in profiles %}
+    <div>
+        <a href="{% url 'accounts:profile' profile.id %}">{{profile}}</a>
+        <p>{{ profile.user.username }}</p>
+        <p>@{{ profile.user.username|lower }}</p>
+    </div>
+{% endfor %}
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% extends "base.html" %}
+    <meta charset="UTF-8">
+    <title>CatLiker</title>
+</head>
+<body>
+{% block content %}
+    {% if user.is_authenticated %}
+        User:{{ user.username }}!
+        <p><a href="{% url 'logout' %}">Log Out</a></p>
+    {% else %}
+        <p>You are not logged in</p>
+        <a href="{% url 'login' %}">Log In</a> |
+        <a href="{% url 'accounts:signup' %}">Sign Up</a>
+    {% endif %}
+    <img src="{{ cat.link }}" alt="" width="500" height="600"/>
+
+    <form method="POST" action=""> {% csrf_token %}
+        <button name="like" value="true">Like</button>
+        <button name="like" value="false">Dislike</button>
+    </form>
+    <a href="{% url 'random_cat' %}">Next Cat</a>
+
+
+
+{% endblock %}
+</body>
+</html>

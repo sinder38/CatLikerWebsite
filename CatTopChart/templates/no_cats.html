@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% extends "base.html" %}
+    <meta charset="UTF-8">
+    <title>CatLiker</title>
+</head>
+<body>
+{% block content %}
+    {% load static %}
+    <img src="{% static 'images/no_cats.jpg' %}" alt="" width="500" height="500"/>
+    <h1>Sorry! No cats are currently available for you to rate</h1>
+{% endblock %}
+</body>
+</html>
