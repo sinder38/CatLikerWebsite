@@ -1,7 +1,3 @@
-import json
-from datetime import date
-
-from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.conf import settings
@@ -10,10 +6,6 @@ from requests import JSONDecodeError
 from CatTopChart.models import Cat
 from accounts.models import CustomUser
 from .get_cats import get_images
-
-
-def random_elem_queryset(queryset):
-    pass
 
 
 def __add_new_cats():
@@ -25,7 +17,7 @@ def __add_new_cats():
                               save=True)
         l_new_cats = len(new_cats)
         if l_new_cats:
-            print(f"Atempting to add {l_new_cats}...")
+            print(f"Attempting to add {l_new_cats}...")
             counter = 0
             for cat in new_cats:
                 try:
@@ -55,8 +47,12 @@ def certain_cat(request, cat_id):
         like = request.POST.get("like") == "true"
         if like:
             user.liked_cats.add(cat)
+            cat.points += int(user.disliked_cats.contains(cat)) + 1
+            user.disliked_cats.remove(cat)
         else:
             user.disliked_cats.add(cat)
+            cat.points -= int(user.liked_cats.contains(cat)) + 1
+            user.liked_cats.remove(cat)
         return redirect(reverse("random_cat"))  # continue the cycle
 
 
@@ -70,11 +66,11 @@ def random_cat(request):
         all_cats = Cat.objects.all()
         try:
             user = CustomUser.objects.get(pk=request.user.pk)
-            cat_list = Cat.objects.exclude(cat_disliked=user).exclude(cat_liked=user)  # unrated cats
-            if len(cat_list) <= 1:  # if there are no unrated cats left
+            unseen_cats = Cat.objects.exclude(cat_disliked=user).exclude(cat_liked=user)  # unrated cats
+            if len(unseen_cats) <= 1:  # if there are no unrated cats left
                 __add_new_cats()
             # todo optimize this
-            unseen_cat = cat_list.order_by('?').first()  # get unseen random cat
+            unseen_cat = unseen_cats.order_by('?').first()  # get unseen random cat
         except CustomUser.DoesNotExist:
             # if user is not logged in then display random cat
             unseen_cat = all_cats.order_by('?').first()  # get random cat
@@ -89,6 +85,24 @@ def random_cat(request):
 
 
 def cat_list(request):
+    # TODO add cat sorting to get worst cats
     if request.method == 'GET':
-        all_cats = Cat.objects.all()
+        all_cats = Cat.objects.order_by("-points")
+        # update cat ranks :/ will be moved to celery later
+        update_ranks()
         return render(request, 'cat_list.html', {'cats': all_cats})
+
+
+def update_ranks():
+    # todo move this to celery later
+    all_cats = Cat.objects.all()
+
+    # this is probably a bad way to do this
+    for cat in all_cats:
+        cat.points = len(CustomUser.objects.exclude(liked_cats=cat).all()) - len(
+            CustomUser.objects.exclude(disliked_cats=cat).all())
+        cat.save()
+
+    for rank, cat in enumerate(all_cats.order_by("-points"), start=1):
+        cat.rank = rank
+        cat.save()

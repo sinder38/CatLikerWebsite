@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    {% extends "base.html" %}
 </head>
 <body>
-{% extends "base.html" %}
+
 {% block content %}
     {% if user.is_authenticated %}
-        Hi {{ user.username }}!
+        Hi <p><a href="{% url 'accounts:profile' user.id  %}">{{user.username}}</a></p>
         <p><a href="{% url 'logout' %}">Log Out</a></p>
     {% else %}
         <p>You are not logged in</p>

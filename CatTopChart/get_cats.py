@@ -76,7 +76,7 @@ def get_test_data(count: int) -> tuple:
         letters = string.ascii_lowercase
         for _ in range(count):
             img_id = ''.join(random.choice(letters) for _ in range(7))
-            img_link = f"http://unsplash.com/photos/{img_id}/download'"
+            img_link = f"https://unsplash.com/photos/{img_id}/download'"
             yield img_id, img_link
 
     # yes that is function in function. I was lazy

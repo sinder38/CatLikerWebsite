@@ -1,4 +1,3 @@
-from django.db.models import Count
 from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
@@ -14,8 +13,16 @@ class SignUpView(CreateView):
 
 
 def update_ranks():
-    CustomUser.objects.annotate(points=Count('liked_cats') + Count('disliked_cats'))
-    # todo finish this function
+    # todo move this to celery later
+    all_users = CustomUser.objects.all()
+    for user in all_users:
+        user.points = user.liked_cats.count()
+        user.save()
+
+    for rank, user in enumerate(all_users.order_by("-points"), start=1):
+        user.rank = rank
+        user.save()
+
 
 def profile(request, pk):
     pr = CustomUser.objects.get(id=pk)
@@ -24,5 +31,7 @@ def profile(request, pk):
 
 def profile_list(request):
     if request.method == 'GET':
-        all_users = CustomUser.objects.all()
+        all_users = CustomUser.objects.order_by("-points")
+        # update user ranks :/ will be moved to celery later
+        update_ranks()
         return render(request, 'users/profile_list.html', {'profiles': all_users})
