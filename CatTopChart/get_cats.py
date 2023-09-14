@@ -17,13 +17,13 @@ def __get_headers():
         "Accept-Version": "v1"}
 
 
-def __get_params(query, count, access_key):
+def __get_params(query, per_page, page, access_key):
     # This format is for unsplash.com
     return {
         "client_id": access_key,
         "query": query,
-        "page": 1,
-        "per_page": count,
+        "page": page,
+        "per_page": per_page,
         "order_by": "latest",
         "content_filter": "low"
     }
@@ -37,17 +37,18 @@ def __get_img_data(response: json):
         yield img_id, img_link
 
 
-def get_images(query, api_url, access_key, count: int, save=False) -> tuple:
+def get_images(query, api_url, access_key, per_page, page=1, save=False) -> tuple:
     """returns images links with their id's
 
+    :param page: Page number to retrieve
+    :param per_page: number of items per page.
     :param save: if true save api responses in json
     :param access_key: key for API
     :param query: prompt to search image for
     :param api_url: link to API
-    :param count: quantity on images
     :return: tuple of tuples where each inner tuple is (img_id, img_link)
     """
-    params = __get_params(query, count, access_key)
+    params = __get_params(query, per_page, page, access_key)
 
     response = requests.get(f"{api_url}", headers=__get_headers(), params=params)
     response.raise_for_status()  # raise errors if data is absent
